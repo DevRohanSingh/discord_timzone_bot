@@ -56,7 +56,7 @@ def get_pst():
     # print(now_pst)  # 03:00 AM
     bummmer_user_id = 863907307267555328   # not sensative (publically available)
     user = bot.get_user(bummmer_user_id)
-    return f"{user}🕐{now_pst}"
+    return f"🕐{user}@{now_pst}"
 
 
 # generous: Eastern Daylight Time -> UTC-4
@@ -66,7 +66,7 @@ def get_est():
     # print(now_est)  # 06:00 AM
     generous_user_id = 124272535490527232
     user = bot.get_user(generous_user_id)
-    return f"{user}🕐{now_est}"
+    return f"🕐{user}@{now_est}"
 
 
 # shipqun
@@ -75,7 +75,7 @@ def get_ist_shipqun():
     # print(now_ist)  # 03:30 PM
     # shipqun_user_id = 1144537872704213024
     # user = bot.get_user(shipqun_user_id)
-    return f"shipqun🕐{now_ist}"
+    return f"🕐shipqun@{now_ist}"
 
 
 # ObserverOfVoid
@@ -84,7 +84,7 @@ def get_ist():
     # print(now_ist)  # 03:30 PM
     # observer_user_id = 835225393630806046 
     # user = bot.get_user(observer_user_id)
-    return f"Observer🕐{now_ist}"
+    return f"🕐Observer@{now_ist}"
 
 @bot.command()
 async def createvc(ctx):
