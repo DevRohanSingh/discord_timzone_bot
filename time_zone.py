@@ -1,14 +1,13 @@
 import datetime as dt
 from pytz import timezone  # pip install pytz
-from dotenv import load_dotenv  # pip install python-dotenv
+# from dotenv import load_dotenv  # pip install python-dotenv
 import os
 import asyncio
 import discord  # pip install discord
 from discord.ext import commands
 
 
-
-load_dotenv()
+# load_dotenv()
 TOKEN = os.environ.get('TOKEN')
 
 bot = commands.Bot(command_prefix='/', intents=discord.Intents.all())
