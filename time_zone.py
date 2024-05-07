@@ -91,7 +91,7 @@ def get_ist():
 async def createvc(ctx):
     # channel creation
     guild = ctx.guild
-    # guild = bot.get_guild(os.environ.get('SERVER_ID'))
+    # guild = bot.get_guild(os.environ.get('SERVER_ID'))  # alternatively
     # admin_role = get(guild.roles, name="Admin")
     overwrites = {
         guild.default_role: discord.PermissionOverwrite(connect=False, view_channel=True),  # view_channel is an alias for read_messages
