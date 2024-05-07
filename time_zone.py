@@ -19,7 +19,7 @@ bot = commands.Bot(command_prefix='/', intents=discord.Intents.all())
 @bot.event
 async def schedule_renaming_vc():
     while True:
-        wait_time = 600  # update every 5 min and 1 sec
+        wait_time = 600  # update every 10 min
         await asyncio.sleep(wait_time)
 
         # rename bummmer vc
