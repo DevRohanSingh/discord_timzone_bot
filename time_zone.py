@@ -94,11 +94,11 @@ async def createvc(ctx):
     guild = bot.get_guild(os.environ.get('SERVER_ID'))
     admin_role = get(guild.roles, name='Admin')
     overwrites = {
-        guild.default_role: discord.PermissionOverwrite(read_messages=False),
-        guild.me: discord.PermissionOverwrite(read_messages=True),
-        admin_role: discord.PermissionOverwrite(read_messages=True)
+        guild.default_role: discord.PermissionOverwrite(connect=False, view_channel=True),  # view_channel is an alias for read_messages
+        # guild.me: discord.PermissionOverwrite(read_messages=True),
+        # admin_role: discord.PermissionOverwrite(read_messages=True)
     }
-    await guild.create_voice_channel(name='new-vc')
+    await guild.create_voice_channel(name='new-vc', overwrites=overwrites)
 
 #  testing
 @bot.command(aliases=['gm', 'morning'])
