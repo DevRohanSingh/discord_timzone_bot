@@ -5,6 +5,7 @@ import os
 import asyncio
 import discord  # pip install discord
 from discord.ext import commands
+# from discord.utils import get
 from keep_alive import keep_alive
 keep_alive()
 
@@ -90,10 +91,12 @@ def get_ist():
 async def createvc(ctx):
     # channel creation
     guild = ctx.guild
-    guild = bot.get_guild(os.environ.get('SERVER_ID'))
+    # guild = bot.get_guild(os.environ.get('SERVER_ID'))
+    # admin_role = get(guild.roles, name="Admin")
     overwrites = {
         guild.default_role: discord.PermissionOverwrite(connect=False, view_channel=True),  # view_channel is an alias for read_messages
         # guild.me: discord.PermissionOverwrite(read_messages=True),
+        # admin_role: discord.PermissionOverwrite(read_messages=True)
     }
     await guild.create_voice_channel(name='new-vc', overwrites=overwrites)
 
