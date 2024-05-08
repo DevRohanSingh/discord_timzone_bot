@@ -23,22 +23,22 @@ async def schedule_renaming_vc():
         await asyncio.sleep(wait_time)
 
         # rename bummmer vc
-        channel_id_bummmer=1237131804662693999
+        channel_id_bummmer= 1237131804662693999
         vc_bummmer = bot.get_channel(channel_id_bummmer)
         await vc_bummmer.edit(name=get_pst())
 
         # rename generous vc
-        channel_id_generous=1237132385846558750
+        channel_id_generous= 1237132385846558750
         vc_generous = bot.get_channel(channel_id_generous)
         await vc_generous.edit(name=get_est())
 
-        # rename shipqun vc
-        channel_id_shipqun=1237135077352149053
-        vc_shipqun = bot.get_channel(channel_id_shipqun)
-        await vc_shipqun.edit(name=get_ist_shipqun())
+        # rename brigitte vc
+        channel_id_brigitte= 1237651048232128613
+        vc_brigitte = bot.get_channel(channel_id_brigitte)
+        await vc_brigitte.edit(name=get_cest_brigitte())
 
         # rename observer vc
-        channel_id_observer=1237135098533646477
+        channel_id_observer= 1237135098533646477
         vc_observer = bot.get_channel(channel_id_observer)
         await vc_observer.edit(name=get_ist())
 
@@ -70,13 +70,15 @@ def get_est():
     return f"🕐{user}@{now_est}"
 
 
-# shipqun
-def get_ist_shipqun():
-    now_ist = dt.datetime.now(timezone("Asia/Kolkata")).strftime("%I:%M %p")
-    # print(now_ist)  # 03:30 PM
-    # shipqun_user_id = 1144537872704213024
-    # user = bot.get_user(shipqun_user_id)
-    return f"🕐shipqun@{now_ist}"
+# Brigitte
+# 3:30 hrs behind (IST)
+# CEST — Central European Summer Time -> UTC+02:00
+def get_cest_brigitte():
+    now_cest = dt.datetime.now(timezone("Europe/Paris")).strftime("%I:%M %p")
+    # print(now_cest)  # 12:00 PM (noon)
+    # brigitte_user_id = 1144537872704213024
+    # user = bot.get_user(brigitte_user_id)
+    return f"🕐Brigitte@{now_cest}"
 
 
 # ObserverOfVoid
