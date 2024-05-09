@@ -37,6 +37,11 @@ async def schedule_renaming_vc():
         vc_brigitte = bot.get_channel(channel_id_brigitte)
         await vc_brigitte.edit(name=get_cest_brigitte())
 
+        # rename molder vc
+        channel_id_molder= 1238114668128501800
+        vc_molder = bot.get_channel(channel_id_molder)
+        await vc_molder.edit(name=get_cst())
+
         # rename observer vc
         channel_id_observer= 1237135098533646477
         vc_observer = bot.get_channel(channel_id_observer)
@@ -80,7 +85,6 @@ def get_cest_brigitte():
     # user = bot.get_user(brigitte_user_id)
     return f"🕐Brigitte@{now_cest}"
 
-
 # ObserverOfVoid
 def get_ist():
     now_ist = dt.datetime.now(timezone("Asia/Kolkata")).strftime("%I:%M %p")
@@ -88,6 +92,17 @@ def get_ist():
     # observer_user_id = 835225393630806046 
     # user = bot.get_user(observer_user_id)
     return f"🕐Observer@{now_ist}"
+
+
+# molder
+# ahead of IST by 2:30 hrs
+def get_cst():
+    now_cst = dt.datetime.now(timezone("Asia/Shanghai")).strftime("%I:%M %p")
+    # print(now_cst)  # 06:00 PM
+    # molder_user_id = 835225393630806046 
+    # user = bot.get_user(molder_user_id)
+    return f"🕐molder@{now_cst}"
+
 
 @bot.command()
 async def createvc(ctx):
