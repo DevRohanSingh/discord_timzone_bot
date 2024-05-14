@@ -1,0 +1,22 @@
+{
+    "bummmer": {
+        "channel_id": "1237131804662693999",
+        "timezone": "America/Los_Angeles"
+    },
+    "generous": {
+        "channel_id": "1237132385846558750",
+        "timezone": "America/New_York"
+    },
+    "brigitte": {
+        "channel_id": "1237651048232128613",
+        "timezone": "Europe/Paris"
+    },
+    "molder": {
+        "channel_id": "1238114668128501800",
+        "timezone": "Asia/Shanghai"
+    },
+    "observer": {
+        "channel_id": "1237135098533646477",
+        "timezone": "Asia/Kolkata"
+    }
+}
