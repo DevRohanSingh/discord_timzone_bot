@@ -1,10 +1,12 @@
 import datetime as dt
+import json
 from pytz import timezone  # pip install pytz
 # from dotenv import load_dotenv  # pip install python-dotenv
 import os
 import asyncio
 import discord  # pip install discord
 from discord.ext import commands
+from discord.ext.commands import has_permissions
 # from discord.utils import get
 from keep_alive import keep_alive
 keep_alive()
@@ -15,96 +17,42 @@ TOKEN = os.environ.get('TOKEN')
 
 bot = commands.Bot(command_prefix='/', intents=discord.Intents.all())
 
+# Load channel data from JSON
+def load_channel_data():
+    with open('channels.json') as f:
+        return json.load(f)
 
-@bot.event
-async def schedule_renaming_vc():
-    while True:
-        wait_time = 600  # update every 10 min
-        await asyncio.sleep(wait_time)
+# Save channel data to JSON
+def save_channel_data(channel_data):
+    with open('channels.json', 'w') as f:
+        json.dump(channel_data, f, indent=4)
 
-        # rename bummmer vc
-        channel_id_bummmer= 1237131804662693999
-        vc_bummmer = bot.get_channel(channel_id_bummmer)
-        await vc_bummmer.edit(name=get_pst())
 
-        # rename generous vc
-        channel_id_generous= 1237132385846558750
-        vc_generous = bot.get_channel(channel_id_generous)
-        await vc_generous.edit(name=get_est())
+async def rename_channels():
+    await bot.wait_until_ready()
+    while not bot.is_closed():
+        channel_data = load_channel_data()
+        for person, data in channel_data.items():
+            channel_id = data['channel_id']
+            timezone_name = data['timezone']
+            channel = bot.get_channel(int(channel_id))
+            await channel.edit(name=await get_time_in_timezone(timezone_name, person))
+        await asyncio.sleep(600)  # Update every 10 minutes
 
-        # rename brigitte vc
-        channel_id_brigitte= 1237651048232128613
-        vc_brigitte = bot.get_channel(channel_id_brigitte)
-        await vc_brigitte.edit(name=get_cest_brigitte())
 
-        # rename molder vc
-        channel_id_molder= 1238114668128501800
-        vc_molder = bot.get_channel(channel_id_molder)
-        await vc_molder.edit(name=get_cst())
-
-        # rename observer vc
-        channel_id_observer= 1237135098533646477
-        vc_observer = bot.get_channel(channel_id_observer)
-        await vc_observer.edit(name=get_ist())
+async def get_time_in_timezone(timezone_name, person):
+    now_time = dt.datetime.now(timezone(timezone_name)).strftime("%I:%M %p")
+    return f"🕐{person}@{now_time}"
 
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name} ({bot.user.id})")
-    # start the rename loop
-    bot.loop.create_task(schedule_renaming_vc())
-
-
-
-# bummmer: PST -> UTC-7
-# 12:30 hrs behind(IST)
-def get_pst():
-    now_pst = dt.datetime.now(timezone("America/Los_Angeles")).strftime("%I:%M %p")
-    # print(now_pst)  # 03:00 AM
-    bummmer_user_id = 863907307267555328   # not sensative (publically available)
-    user = bot.get_user(bummmer_user_id)
-    return f"🕐{user}@{now_pst}"
-
-
-# generous: Eastern Daylight Time -> UTC-4
-# 9:30 hrs behind(IST)
-def get_est():
-    now_est = dt.datetime.now(timezone('America/New_York')).strftime("%I:%M %p")
-    # print(now_est)  # 06:00 AM
-    generous_user_id = 124272535490527232
-    user = bot.get_user(generous_user_id)
-    return f"🕐{user}@{now_est}"
-
-
-# Brigitte
-# 3:30 hrs behind (IST)
-# CEST — Central European Summer Time -> UTC+02:00
-def get_cest_brigitte():
-    now_cest = dt.datetime.now(timezone("Europe/Paris")).strftime("%I:%M %p")
-    # print(now_cest)  # 12:00 PM (noon)
-    # brigitte_user_id = 1144537872704213024
-    # user = bot.get_user(brigitte_user_id)
-    return f"🕐Brigitte@{now_cest}"
-
-# ObserverOfVoid
-def get_ist():
-    now_ist = dt.datetime.now(timezone("Asia/Kolkata")).strftime("%I:%M %p")
-    # print(now_ist)  # 03:30 PM
-    # observer_user_id = 835225393630806046 
-    # user = bot.get_user(observer_user_id)
-    return f"🕐Observer@{now_ist}"
-
-
-# molder
-# ahead of IST by 2:30 hrs
-def get_cst():
-    now_cst = dt.datetime.now(timezone("Asia/Shanghai")).strftime("%I:%M %p")
-    # print(now_cst)  # 06:00 PM
-    # molder_user_id = 835225393630806046 
-    # user = bot.get_user(molder_user_id)
-    return f"🕐molder@{now_cst}"
+    # start the rename channels loop
+    bot.loop.create_task(rename_channels())
 
 
 @bot.command()
+@has_permissions(administrator=True)
 async def createvc(ctx):
     # channel creation
     guild = ctx.guild
@@ -117,10 +65,87 @@ async def createvc(ctx):
     }
     await guild.create_voice_channel(name='new-vc', overwrites=overwrites)
 
-#  testing
-@bot.command(aliases=['gm', 'morning'])
-async def test(ctx):
-    await ctx.send(f'test successful, {ctx.author.mention}!')
+
+@bot.command()
+@has_permissions(administrator=True)
+async def add_channel_data(ctx, person, channel_id, timezone):
+    """
+    Add channel data to channels.json if the channel_id is not already present.
+
+    Usage: /add_channel_data <person> <channel_id> <timezone>
+    """
+    channel_data = load_channel_data()
+    for existing_person, data in channel_data.items():
+        if data['channel_id'] == channel_id:
+            await ctx.send(f"The channel ID {channel_id} is already associated with {existing_person}.")
+            return
+
+    channel_data[person] = {
+        "channel_id": channel_id,
+        "timezone": timezone
+    }
+
+    save_channel_data(channel_data)
+    await ctx.send(f"Channel data added for {person}.")
+
+@bot.command()
+@has_permissions(administrator=True)
+async def update_channel_data(ctx, person, channel_id, timezone):
+    """
+    Update channel data in channels.json.
+
+    Usage: /update_channel_data <person> <channel_id> <timezone>
+    """
+    channel_data = load_channel_data()
+    if person not in channel_data:
+        await ctx.send(f"{person} does not exist in the data. Use /add_channel_data instead.")
+        return
+
+    channel_data[person] = {
+        "channel_id": channel_id,
+        "timezone": timezone
+    }
+
+    save_channel_data(channel_data)
+    await ctx.send(f"Channel data updated for {person}.")
+
+@bot.command()
+@has_permissions(administrator=True)
+async def remove_channel_data(ctx, person):
+    """
+    Remove channel data from channels.json.
+
+    Usage: /remove_channel_data <person>
+    """
+    channel_data = load_channel_data()
+    if person not in channel_data:
+        await ctx.send(f"{person} does not exist in the data.")
+        return
+
+    del channel_data[person]
+    save_channel_data(channel_data)
+    await ctx.send(f"Channel data removed for {person}.")
+
+
+@bot.command()
+async def reset_time(ctx):
+    """
+    Reset the time (rename the channel).
+    """
+    channel_data = load_channel_data()
+    for person, data in channel_data.items():
+        channel_id = data['channel_id']
+        timezone_name = data['timezone']
+        channel = bot.get_channel(int(channel_id))
+        await channel.edit(name=await get_time_in_timezone(timezone_name, person))
+    await ctx.send("Time reset for all channels.")
+    
+    
+@bot.command()
+@has_permissions(administrator=True)
+async def test(ctx, msg):
+    await ctx.send(f'{msg}, {ctx.author.mention}!')
+
 
 if __name__ == '__main__':
     bot.run(TOKEN)
