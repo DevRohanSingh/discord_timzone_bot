@@ -39,14 +39,17 @@ class ChannelData(Base):
     def __repr__(self):
         return f"<Person: '{self.person}', Channel_id: '{self.channel_id}'"
 
-engine = create_engine('sqlite:///channel_data.db', echo=True)
+engine = create_engine('sqlite:///channel_data.db', echo=True, pool_size=20, max_overflow=10)
 Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
 
 # Load channel data from SQLite database
 def load_channel_data():
     session = Session()
-    return session.query(ChannelData).all()
+    try:
+        return session.query(ChannelData).all()
+    finally:
+        session.close()
 
 # # Save channel data to SQLite database
 # def save_channel_data(channel_data):
@@ -112,10 +115,13 @@ async def add_channel_data(ctx, person, channel_id, timezone):
     Add channel data to SQLite database.
     """
     session = Session()
-    channel_data = ChannelData(person=person, channel_id=channel_id, timezone=timezone)
-    session.add(channel_data)
-    session.commit()
-    await ctx.send(f"Channel data added for {person}.")
+    try:
+        channel_data = ChannelData(person=person, channel_id=channel_id, timezone=timezone)
+        session.add(channel_data)
+        session.commit()
+        await ctx.send(f"Channel data added for {person}.")
+    finally:
+        session.close()
 
 @bot.command()
 @commands.has_permissions(administrator=True)
@@ -124,14 +130,17 @@ async def update_channel_data(ctx, person, channel_id, timezone):
     Update channel data in SQLite database.
     """
     session = Session()
-    channel_data = session.query(ChannelData).filter_by(person=person).first()
-    if channel_data:
-        channel_data.channel_id = channel_id
-        channel_data.timezone = timezone
-        session.commit()
-        await ctx.send(f"Channel data updated for {person}.")
-    else:
-        await ctx.send(f"{person} does not exist in the data. Use /add_channel_data instead.")
+    try:
+        channel_data = session.query(ChannelData).filter_by(person=person).first()
+        if channel_data:
+            channel_data.channel_id = channel_id
+            channel_data.timezone = timezone
+            session.commit()
+            await ctx.send(f"Channel data updated for {person}.")
+        else:
+            await ctx.send(f"{person} does not exist in the data. Use /add_channel_data instead.")
+    finally:
+        session.close()
 
 @bot.command()
 @commands.has_permissions(administrator=True)
@@ -140,13 +149,16 @@ async def remove_channel_data(ctx, person):
     Remove channel data from SQLite database.
     """
     session = Session()
-    channel_data = session.query(ChannelData).filter_by(person=person).first()
-    if channel_data:
-        session.delete(channel_data)
-        session.commit()
-        await ctx.send(f"Channel data removed for {person}.")
-    else:
-        await ctx.send(f"{person} does not exist in the data.")
+    try:
+        channel_data = session.query(ChannelData).filter_by(person=person).first()
+        if channel_data:
+            session.delete(channel_data)
+            session.commit()
+            await ctx.send(f"Channel data removed for {person}.")
+        else:
+            await ctx.send(f"{person} does not exist in the data.")
+    finally:
+        session.close()
     
     
 @bot.command()
