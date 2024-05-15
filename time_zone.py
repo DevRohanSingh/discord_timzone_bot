@@ -78,6 +78,7 @@ async def rename_channels():
             for data in channel_data:
                 channel = bot.get_channel(int(data.channel_id))
                 await channel.edit(name=await get_time_in_timezone(data.timezone, data.person))
+            await asyncio.sleep(540)  # wait for 9 minutes
         await asyncio.sleep(10)  # Check every 10 seconds
 
 @bot.event
