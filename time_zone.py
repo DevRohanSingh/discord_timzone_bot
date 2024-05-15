@@ -69,21 +69,24 @@ async def reset_time(ctx):
 async def rename_channels():
     await bot.wait_until_ready()
     while not bot.is_closed():
-        channel_data = load_channel_data()
-        for data in channel_data:
-            channel = bot.get_channel(int(data.channel_id))
-            await channel.edit(name=await get_time_in_timezone(data.timezone, data.person))
-        await asyncio.sleep(600)  # Update every 10 minutes
-
-async def get_time_in_timezone(timezone_name, person):
-    now_time = dt.datetime.now(timezone(timezone_name)).strftime("%I:%M %p")
-    return f"🕐{person}@{now_time}"
+        current_time = dt.datetime.now()
+        if current_time.minute % 10 == 0:  # Check if the minutes is a multiple of 10
+            channel_data = load_channel_data()
+            for data in channel_data:
+                channel = bot.get_channel(int(data.channel_id))
+                await channel.edit(name=await get_time_in_timezone(data.timezone, data.person))
+        await asyncio.sleep(10)  # Check every 10 seconds
 
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name} ({bot.user.id})")
     # start the rename channels loop
     bot.loop.create_task(rename_channels())
+
+async def get_time_in_timezone(timezone_name, person):
+    now_time = dt.datetime.now(timezone(timezone_name)).strftime("%I:%M %p")
+    return f"🕐{person}@{now_time}"
+
 
 
 @bot.command()
